@@ -1,0 +1,54 @@
+version: '3'
+services:
+    postgres:
+        image: 'postgres:latest'
+        environment:
+            - POSTGRES_PASSWORD=postgres_password
+    redis:
+        image: 'redis:latest'
+    nginx:
+        restart: always
+        image: 'nginx:latest'
+        build:
+            dockerfile: Dockerfile.dev
+            context: ./nginx
+        ports:
+            - '3050:80'
+        depends_on:
+            - api
+            - client
+    api: #make nginx happy by not using default word, server
+        build:
+            dockerfile: Dockerfile.dev
+            context: ./server #build image from this THIS DIR, also find Dockerfile here!
+        volumes:
+            - /app/node_modules #don't redirect access, or override this folder
+            - ./server:/app #map everything in serverFolder into appFolder of CONTAINER
+        #env vars to connect to redis and postgres
+        environment:
+            - REDIS_HOST=redis
+            - REDIS_PORT=6379 #from docs
+            - PGUSER=postgres
+            - PGHOST=postgres
+            - PGDATABASE=postgres
+            - PGPASSWORD=postgres_password
+            - PGPORT=5432 #from docs
+    client:
+        build:
+            dockerfile: Dockerfile.dev
+            context: ./client
+        volumes:
+            - /app/node_modules
+            - ./client:/app
+        environment:
+            - WDS_SOCKET_PORT=0
+    worker:
+        build:
+            dockerfile: Dockerfile.dev
+            context: ./worker
+        volumes:
+            - /app/node_modules
+            - ./worker:/app
+        environment:
+            - REDIS_HOST=redis
+            - REDIS_PORT=6379
