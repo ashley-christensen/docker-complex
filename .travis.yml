@@ -6,7 +6,7 @@ services:
   - docker build -t ashleychristensen/react-test -f ./client/Dockerfile.dev ./client
 
 script: 
-  - docker run ashleychristensen/react-test npm test -- --coverage #make sure script exits with 0 or not 
+  - docker run ashleychristensen/react-test npm test -- --coverage #make sure script exits with 0/other
 
 after_success: #prod versions build
   - docker build -t ashleychristensen/multi-client ./client
