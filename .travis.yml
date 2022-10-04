@@ -14,6 +14,16 @@ after_success: #prod versions build
   - docker build -t ashleychristensen/multi-server ./server
   - docker build -t ashleychristensen/multi-worker ./worker
 
+  # Login to docker CLI
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # Take images and push them to docker hub
+  - docker push ashleychristensen/multi-client
+  - docker push ashleychristensen/multi-nginx
+  - docker push ashleychristensen/multi-server
+  - docker push ashleychristensen/multi-worker
+  
+
+
 
 
   #not docker run ... npm test -- -- coverage
